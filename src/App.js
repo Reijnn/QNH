@@ -10,7 +10,7 @@ class App extends Component {
       email: ''
     }
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this); // <-- add this line
+    this.handleSubmit = this.handleSubmit.bind(this); 
   }
 
   handleChange(e) {
@@ -26,6 +26,11 @@ class App extends Component {
       email: this.state.email
     }
     itemsRef.push(item);
+
+    itemsRef.on('value', (snapshot) => {
+      console.log(snapshot.val());
+    });
+
     this.setState({
       email: ''
     });
