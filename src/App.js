@@ -1,18 +1,18 @@
 import React, {Component} from 'react';
-import logo from './logo.svg';
 import './App.css';
 import firebase from './firebase.js';
 
-//const storage = firebase.storage();
+const storage = firebase.storage();
 const database = firebase.database();
 
-class App extends Component {
+export default class App extends Component {
 
   constructor() {
     super();
     this.state = {
       name: '',
-      email: ''
+      email: '',
+      items: []
     }
     this.handleChange = this
       .handleChange
@@ -30,26 +30,55 @@ class App extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
-    const itemsRef = database.ref('clients');
+    const clientsRef = database.ref('clients');
 
     const item = {
       name: this.state.name,
       email: this.state.email
     }
-    itemsRef.push(item);
-
-    itemsRef.on('value', (snapshot) => {
-      console.log(snapshot.val());
-    });
-
+    clientsRef.push(item);
     this.setState({name: '', email: ''});
+  }
+
+  componentDidMount() {
+    const filesRef = firebase
+      .database()
+      .ref('files');
+    filesRef.on('value', (snapshot) => {
+      let files = snapshot.val();
+      let newState = [];
+      for (let file in files) {
+        newState.push({id: file, name: files[file].name, url: files[file].url});
+      }
+      this.setState({items: newState});
+    });
+  }
+
+  handleUpload(e) {
+    e.preventDefault();
+    var file = document
+      .getElementById("upload")
+      .files[0];
+    var storageRef = storage.ref(file.name);
+    storageRef
+      .put(file)
+      .then(function (snapshot) {
+        var fileRef = database.ref('files');
+
+        const item = {
+          name: file.name,
+          url: snapshot.downloadURL
+        };
+
+        fileRef.push(item);
+        alert('Succes');
+      });
   }
 
   render() {
     return (
       <div className="App">
         <div className="App-header">
-          <img src={logo} className="App-logo" alt="logo"/>
           <h2>Welcome to QNH</h2>
         </div>
         <div className='container'>
@@ -69,10 +98,27 @@ class App extends Component {
                 value={this.state.email}/>
               <button>Versturen</button>
             </form>
+            <form onSubmit={this.handleUpload}>
+              <p>
+                <input type="file" id="upload"/>
+                <button id="opsturen">Opsturen</button>
+              </p>
+            </form>
           </section>
           <section className='display-item'>
-            <div className='wrapper'>
-              <ul></ul>
+            <div className="wrapper">
+              <ul>
+                {this
+                  .state
+                  .items
+                  .map((item) => {
+                    return (
+                      <li key={item.id}>
+                        <span onClick={() => window.open(item.url)}>{item.name}</span>
+                      </li>
+                    )
+                  })}
+              </ul>
             </div>
           </section>
         </div>
@@ -80,5 +126,3 @@ class App extends Component {
     );
   }
 }
-
-export default App;
