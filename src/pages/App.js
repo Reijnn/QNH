@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import firebase from '../js/firebase.js';
+import firebase, {auth, provider} from '../js/firebase.js';
 //import logo from '../images/';
 import ReactTable from 'react-table'
 import '../pages/app.css'
@@ -15,7 +15,7 @@ import {
   Jumbotron,
   Button,
   Label,
-  Alert,
+  UncontrolledAlert,
   FormGroup,
   Input,
   Col,
@@ -35,7 +35,8 @@ export default class App extends Component {
       clientCompany: '',
       clientContact: false,
       items: [],
-      selected: []
+      selected: [],
+      user: null
     }
 
     this.toggle = this
@@ -47,15 +48,57 @@ export default class App extends Component {
     this.handleSubmit = this
       .handleSubmit
       .bind(this);
+
+    this.login = this
+      .login
+      .bind(this); // <-- add this line
+    this.logout = this
+      .logout
+      .bind(this); // <-- add this line
+  }
+
+  login() {
+    auth
+      .signInWithPopup(provider)
+      .then((result) => {
+        const user = result.user;
+        var allowed = false;
+
+        const filesRef = firebase
+          .database()
+          .ref('allowed');
+        filesRef.on('value', (snapshot) => {
+          let files = snapshot.val();
+          for (let file in files) {
+            if (user.email === files[file].email) {
+              allowed = true;
+            }
+          }
+          if (allowed) {
+            this.setState({user});
+          } else {
+            alert("Geen toegang!")
+            this.logout();
+          }
+        });
+      });
+  }
+
+  logout() {
+    auth
+      .signOut()
+      .then(() => {
+        this.setState({user: null});
+      });
   }
 
   handleChange(e) {
     const target = e.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
+    const value = target.type === 'checkbox'
+      ? target.checked
+      : target.value;
     const id = target.id;
-    this.setState({
-      [id]: value
-    });
+    this.setState({[id]: value});
   }
 
   toggle() {
@@ -72,7 +115,7 @@ export default class App extends Component {
       const item = {
         clientName: this.state.clientName,
         clientCompany: this.state.clientCompany,
-        clientEmail: this.state.clientEmail, 
+        clientEmail: this.state.clientEmail,
         clientContact: this.state.clientContact
       }
       clientsRef.push(item);
@@ -88,6 +131,12 @@ export default class App extends Component {
   }
 
   componentDidMount() {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({user});
+      }
+    });
+
     const filesRef = firebase
       .database()
       .ref('files');
@@ -135,6 +184,9 @@ export default class App extends Component {
 
           fileRef.push(item);
           alert('Succes');
+        })
+        .catch(function (error) {
+          alert(error.message)
         });
     } else {
       alert('Selecteer eerst een bestand.')
@@ -151,9 +203,14 @@ export default class App extends Component {
           </NavbarBrand>
           <Collapse isOpen={this.state.isOpen} navbar>
             <Nav className="ml-auto" navbar>
-              <NavItem>
-                <NavLink href="#">Login</NavLink>
-              </NavItem>
+              {this.state.user
+                ? <NavItem>
+                    <NavLink onClick={this.logout}>Logout</NavLink>
+                  </NavItem>
+                : <NavItem>
+                  <NavLink onClick={this.login}>Login</NavLink>
+                </NavItem>
+}
             </Nav>
           </Collapse>
         </Navbar>
@@ -225,22 +282,22 @@ export default class App extends Component {
         ]}/>
 
         <Jumbotron fluid>
-          <Container fluid>
-            <Col
-              sm={{
-              size: 6,
-              push: 2,
-              pull: 2,
-              offset: 1
-            }}>
+          <Col
+            sm={{
+            size: 6,
+            push: 2,
+            pull: 2,
+            offset: 1
+          }}>
+            <Container fluid>
               <p className="lead">Kennis is er om te delen! Vink de documenten aan, vul uw
-                gegevens in en klik op ‘verstuur’. U ontvangt de documenten vervolgens in uw
+                gegevens in en klik op ‘Versturen’. U ontvangt de documenten vervolgens in uw
                 mail.</p>
-            </Col>
-          </Container>
+            </Container>
+          </Col>
         </Jumbotron>
-        <br/>
 
+        <br/>
         <Col
           sm={{
           size: 6,
@@ -249,12 +306,12 @@ export default class App extends Component {
           offset: 1
         }}>
           <FormGroup>
-            <Alert id="alertSucces" color="success" hidden>
+            <UncontrolledAlert id="alertSucces" color="success" hidden>
               Email succesvol verstuurd.
-            </Alert>
-            <Alert id="alertFail" color="danger" hidden>
+            </UncontrolledAlert>
+            <UncontrolledAlert id="alertFail" color="danger" hidden>
               Naam en email zijn vereist.
-            </Alert>
+            </UncontrolledAlert>
             <Input
               type="text"
               id="clientName"
@@ -284,21 +341,20 @@ export default class App extends Component {
                 andere inhoudelijke zaken.
               </Label>
             </FormGroup>
-            <Button color="primary" onClick={this.handleSubmit}>Versturen</Button>
-
+            <Button className="button" onClick={this.handleSubmit}>Versturen</Button>
             <br/>
           </FormGroup>
         </Col>
 
-        <Jumbotron fluid>
-          <Container fluid>
-            <Col
-              sm={{
-              size: 6,
-              push: 2,
-              pull: 2,
-              offset: 1
-            }}>
+        <Jumbotron className="footer" fluid>
+          <Col
+            sm={{
+            size: 6,
+            push: 2,
+            pull: 2,
+            offset: 1
+          }}>
+            <Container fluid>
               <p className="lead">© 2017{' '}
                 <a
                   target="_blank"
@@ -306,19 +362,27 @@ export default class App extends Component {
                   href={`http://qnh.eu/wp-content/uploads/QNH-Leveringsvoorwaarden-2017.pdf`}>
                   QNH - Algemene Voorwaarden</a>
               </p>
-            </Col>
-          </Container>
+            </Container>
+          </Col>
         </Jumbotron>
 
-        {/* <FormGroup>
-          <Input type="file" id="fileUpload" placeholder="Bestands selecteren"/>
-          <Input type="text" id="fileName" placeholder="Bestand naam"/>
-          <Input type="text" id="filetheme" placeholder="Bestand Thema"/>
-          <Input type="text" id="fileDesc" placeholder="Bestand Omschrijving"/>
-          <Button color="primary" onClick={this.handleUpload}>Versturen</Button>
-        </FormGroup>
+        {this.state.user
+          ? <Col
+              sm={{
+              size: 6,
+              push: 2,
+              pull: 2,
+              offset: 1
+            }}>
+              <br/><Input type="file" id="fileUpload" placeholder="Bestands selecteren"/>
+              <Input type="text" id="fileName" placeholder="Bestand naam"/>
+              <Input type="text" id="fileTheme" placeholder="Bestand Thema"/>
+              <Input type="text" id="fileDesc" placeholder="Bestand Omschrijving"/>
+              <Button color="primary" onClick={this.handleUpload}>Versturen</Button>
+            </Col>
+          : <div/>
+}
 
-        <Button color="info" onClick={() => console.log(this.state.selected)}>Bestanden</Button> */}
       </div>
     );
   }

@@ -1,0 +1,31 @@
+[debug] [2017-09-28T13:03:47.618Z] ----------------------------------------------------------------------
+[debug] [2017-09-28T13:03:47.620Z] Command:       /usr/local/Cellar/node/8.6.0/bin/node /usr/local/bin/firebase deploy
+[debug] [2017-09-28T13:03:47.620Z] CLI Version:   3.12.0
+[debug] [2017-09-28T13:03:47.620Z] Platform:      darwin
+[debug] [2017-09-28T13:03:47.620Z] Node Version:  v8.6.0
+[debug] [2017-09-28T13:03:47.621Z] Time:          Thu Sep 28 2017 15:03:47 GMT+0200 (CEST)
+[debug] [2017-09-28T13:03:47.621Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2017-09-28T13:03:47.634Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2017-09-28T13:03:47.634Z] > authorizing via signed-in user
+[debug] [2017-09-28T13:03:47.635Z] > refreshing access token with scopes: ["email","https://www.googleapis.com/auth/cloud-platform","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","openid"]
+[debug] [2017-09-28T13:03:47.636Z] >>> HTTP REQUEST POST https://www.googleapis.com/oauth2/v3/token { refresh_token: '1/uXnN1VbVxS2UjnbyEW8ggeFQn_vxm5ATLds2uuVlB-P72Y3aJnZJLZyTfCGZ-nlk',
+  client_id: '563584335869-fgrhgmd47bqnekij5i8b5pr03ho849e6.apps.googleusercontent.com',
+  client_secret: 'j9iVZfS8kkCEFUPaAeJV0sAi',
+  grant_type: 'refresh_token',
+  scope: 'email https://www.googleapis.com/auth/cloud-platform https://www.googleapis.com/auth/cloudplatformprojects.readonly https://www.googleapis.com/auth/firebase openid' } 
+ Thu Sep 28 2017 15:03:47 GMT+0200 (CEST)
+[debug] [2017-09-28T13:03:47.771Z] <<< HTTP RESPONSE 200
+[debug] [2017-09-28T13:03:47.786Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/projects/qnh-app  
+ Thu Sep 28 2017 15:03:47 GMT+0200 (CEST)
+[debug] [2017-09-28T13:03:48.434Z] <<< HTTP RESPONSE 200
+[debug] [2017-09-28T13:03:48.434Z] >>> HTTP REQUEST GET https://admin.firebase.com/v1/database/qnh-app/tokens  
+ Thu Sep 28 2017 15:03:48 GMT+0200 (CEST)
+[debug] [2017-09-28T13:03:49.084Z] <<< HTTP RESPONSE 200
+[info] 
+[info] === Deploying to 'qnh-app'...
+[info] 
+[info] i  deploying hosting
+[info] i  hosting: preparing build directory for upload...
+[debug] [2017-09-28T13:03:50.555Z] >>> HTTP REQUEST PUT https://deploy.firebase.com/v1/hosting/qnh-app/uploads/-Kv7_VjUj2WFQ01NqXR1?fileCount=17&message=  
+ Thu Sep 28 2017 15:03:50 GMT+0200 (CEST)
