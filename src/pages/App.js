@@ -18,6 +18,10 @@ import {
   UncontrolledAlert,
   FormGroup,
   Input,
+  Modal,
+  ModalHeader,
+  ModalFooter,
+  ModalBody,
   Col,
   Container
 } from 'reactstrap';
@@ -36,8 +40,16 @@ export default class App extends Component {
       clientContact: false,
       items: [],
       selected: [],
+      file:   {
+        fileName: '',
+        fileTheme: '',
+        fileDesc: '',
+        fileUrl: ''
+      },
+      modal: false,
       user: null
     }
+
 
     this.toggle = this
       .toggle
@@ -48,13 +60,21 @@ export default class App extends Component {
     this.handleSubmit = this
       .handleSubmit
       .bind(this);
-
     this.login = this
       .login
-      .bind(this); // <-- add this line
+      .bind(this);
     this.logout = this
       .logout
-      .bind(this); // <-- add this line
+      .bind(this);
+    this.toggleModal = this
+      .toggleModal
+      .bind(this);
+  }
+
+  toggleModal() {
+    this.setState({
+      modal: !this.state.modal
+    });
   }
 
   login() {
@@ -251,11 +271,29 @@ export default class App extends Component {
           </Col>
         </Jumbotron>
 
+        <Modal
+        id="fileModal"
+          isOpen={this.state.modal}
+          toggle={this.toggle}
+          className={this.props.className}>
+          <ModalHeader toggle={this.toggleModal}>{this.state.file.fileName}</ModalHeader>
+          <ModalBody>
+          {this.state.file.fileDesc}
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={() => window.open(this.state.file.fileUrl)}>Download</Button>{' '}
+            <Button color="secondary" onClick={this.toggleModal}>Terug</Button>{' '}
+          </ModalFooter>
+        </Modal>
+
         <ReactTable
           getTdProps={(state, rowInfo, column, instance) => {
           return {
             onClick: (e, handleOriginal) => {
-              console.log('A Td Element was clicked!')
+              if (column.id !== "checkbox") {
+                this.setState({file: rowInfo.original});
+                this.toggleModal()
+              }
             }
           }
         }}
@@ -265,7 +303,7 @@ export default class App extends Component {
           columns={[
           {
             id: "checkbox",
-            accessor: "",
+            accessor: "checkbox",
             Cell: ({original}) => {
               return (<input
                 type="checkbox"
@@ -277,7 +315,7 @@ export default class App extends Component {
             accessor: 'fileName'
           }, {
             Header: 'Thema',
-            accessor: 'filetheme'
+            accessor: 'fileTheme'
           }
         ]}/>
 
@@ -375,10 +413,17 @@ export default class App extends Component {
               offset: 1
             }}>
               <br/><Input type="file" id="fileUpload" placeholder="Bestands selecteren"/>
-              <Input type="text" id="fileName" placeholder="Bestand naam"/>
-              <Input type="text" id="fileTheme" placeholder="Bestand Thema"/>
+              <Input type="text" id="fileName" placeholder="Bestand Naam"/>
+              <Input type="select" id="fileTheme" placeholder="Bestand Thema">
+                <option>Business Analytics</option>
+                <option>Cloud</option>
+                <option>Collaboration</option>
+                <option>Enterprise Mobility</option>
+                <option>Digital Experience</option>
+              </Input>
               <Input type="text" id="fileDesc" placeholder="Bestand Omschrijving"/>
-              <Button color="primary" onClick={this.handleUpload}>Versturen</Button>
+              <br/>
+              <Button className="button" onClick={this.handleUpload}>Versturen</Button>
             </Col>
           : <div/>
 }
