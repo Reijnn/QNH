@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import firebase, {auth, provider} from '../js/firebase.js';
-//import logo from '../images/';
+import logo from '../images/QNH_logo_totaal_blauw transparant.png';
 import ReactTable from 'react-table'
 import '../pages/app.css'
 import 'react-table/react-table.css'
@@ -40,7 +40,7 @@ export default class App extends Component {
       clientContact: false,
       items: [],
       selected: [],
-      file:   {
+      file: {
         fileName: '',
         fileTheme: '',
         fileDesc: '',
@@ -49,7 +49,6 @@ export default class App extends Component {
       modal: false,
       user: null
     }
-
 
     this.toggle = this
       .toggle
@@ -243,67 +242,81 @@ export default class App extends Component {
             pull: 2,
             offset: 1
           }}>
-            {/* <img src={logo} className="App-logo" alt="logo" /> */}
+          <img src={logo}  width="250" onClick={() => window.open("https://www.qnh.eu/")} className="App-logo" alt="logo"/>
+          <br/><br/>
             <p className="lead">QNH helpt organisaties met het bijsturen en verbeteren van
               hun bedrijfsvoering, door de inzet van slimme IT oplossingen. Dit doen we
               middels de thema’s{' '}
               <a
+                className="link"
                 target="_blank"
                 rel="noopener"
                 href={`https://qnh.eu/thema/business-analytics/`}>
                 Business Analytics</a>,{' '}
-              <a target="_blank" rel="noopener" href={`https://qnh.eu/thema/cloud/`}>
+              <a
+                target="_blank"
+                className="link"
+                rel="noopener"
+                href={`https://qnh.eu/thema/cloud/`}>
                 Cloud</a>,{' '}
-              <a target="_blank" rel="noopener" href={`https://qnh.eu/thema/collaboration/`}>
+              <a
+                target="_blank"
+                className="link"
+                rel="noopener"
+                href={`https://qnh.eu/thema/collaboration/`}>
                 Collaboration</a>,{' '}
               <a
                 target="_blank"
+                className ="link"
                 rel="noopener"
                 href={`https://qnh.eu/thema/enterprise-mobility/`}>
                 Enterprise Mobility</a>,{' '}
               <a
                 target="_blank"
+                className ="link"
                 rel="noopener"
                 href={`https://qnh.eu/thema/digital-experience/`}>
                 Digital Experience</a>.</p>
             <hr className="my-2"/>
-            <p>Partnership in IT</p>
+            <p className="lead">Kennis is er om te delen! Vink de documenten aan, vul uw
+              gegevens in en klik op ‘Versturen’. U ontvangt de documenten vervolgens in uw
+              mail.</p>
           </Col>
         </Jumbotron>
 
         <Modal
-        id="fileModal"
+          id="fileModal"
           isOpen={this.state.modal}
           toggle={this.toggle}
           className={this.props.className}>
           <ModalHeader toggle={this.toggleModal}>{this.state.file.fileName}</ModalHeader>
           <ModalBody>
-          {this.state.file.fileDesc}
+            {this.state.file.fileDesc}
           </ModalBody>
           <ModalFooter>
-            <Button color="primary" onClick={() => window.open(this.state.file.fileUrl)}>Download</Button>{' '}
-            <Button color="secondary" onClick={this.toggleModal}>Terug</Button>{' '}
+            <Button color="primary" onClick={this.toggleModal}>Terug</Button>{' '}
           </ModalFooter>
         </Modal>
 
         <ReactTable
           getTdProps={(state, rowInfo, column, instance) => {
           return {
+ 
             onClick: (e, handleOriginal) => {
-              if (column.id !== "checkbox") {
+              if (column.id !== "checkbox" && rowInfo !== undefined) {
                 this.setState({file: rowInfo.original});
                 this.toggleModal()
               }
             }
           }
         }}
-          defaultPageSize={10}
           showPagination={false}
           data={this.state.items}
           columns={[
           {
             id: "checkbox",
             accessor: "checkbox",
+            maxWidth: 25,
             Cell: ({original}) => {
               return (<input
                 type="checkbox"
@@ -311,7 +324,7 @@ export default class App extends Component {
                 onChange={() => this.toggleRow(original.fileUrl)}/>);
             }
           }, {
-            Header: 'Name',
+            Header: 'Naam',
             accessor: 'fileName'
           }, {
             Header: 'Thema',
@@ -327,62 +340,47 @@ export default class App extends Component {
             pull: 2,
             offset: 1
           }}>
-            <Container fluid>
-              <p className="lead">Kennis is er om te delen! Vink de documenten aan, vul uw
-                gegevens in en klik op ‘Versturen’. U ontvangt de documenten vervolgens in uw
-                mail.</p>
-            </Container>
+            <FormGroup>
+              <UncontrolledAlert id="alertSucces" color="success" hidden>
+                Succesvol verstuurd!
+              </UncontrolledAlert>
+              <UncontrolledAlert id="alertFail" color="danger" hidden>
+                Alle velden zijn vereist!
+              </UncontrolledAlert>
+              <Input
+                type="text"
+                id="clientName"
+                placeholder="Volledige naam"
+                onChange={this.handleChange}
+                value={this.state.clientName}/>
+              <Input
+                type="text"
+                id="clientCompany"
+                onChange={this.handleChange}
+                value={this.state.clientCompany}
+                placeholder="Bedrijfsnaam"/>
+              <Input
+                type="email"
+                id="clientEmail"
+                placeholder="Email"
+                onChange={this.handleChange}
+                value={this.state.clientEmail}/>
+              <FormGroup check>
+                <Label check>
+                  <Input
+                    type="checkbox"
+                    id="clientContact"
+                    onChange={this.handleChange}
+                    value={this.state.clientContact}/>{' '}
+                  Ik wil op de hoogte gehouden worden van nieuwe whitepapers, evenementen of
+                  andere inhoudelijke zaken.
+                </Label>
+              </FormGroup>
+              <Button className="button" onClick={this.handleSubmit}>Versturen</Button>
+              <br/>
+            </FormGroup>
           </Col>
         </Jumbotron>
-
-        <br/>
-        <Col
-          sm={{
-          size: 6,
-          push: 2,
-          pull: 2,
-          offset: 1
-        }}>
-          <FormGroup>
-            <UncontrolledAlert id="alertSucces" color="success" hidden>
-              Email succesvol verstuurd.
-            </UncontrolledAlert>
-            <UncontrolledAlert id="alertFail" color="danger" hidden>
-              Naam en email zijn vereist.
-            </UncontrolledAlert>
-            <Input
-              type="text"
-              id="clientName"
-              placeholder="Volledige naam"
-              onChange={this.handleChange}
-              value={this.state.clientName}/>
-            <Input
-              type="text"
-              id="clientCompany"
-              onChange={this.handleChange}
-              value={this.state.clientCompany}
-              placeholder="Bedrijf's naam"/>
-            <Input
-              type="email"
-              id="clientEmail"
-              placeholder="Email"
-              onChange={this.handleChange}
-              value={this.state.clientEmail}/>
-            <FormGroup check>
-              <Label check>
-                <Input
-                  type="checkbox"
-                  id="clientContact"
-                  onChange={this.handleChange}
-                  value={this.state.clientContact}/>{' '}
-                Ik wil op de hoogte gehouden worden van nieuwe whitepapers, evenementen of
-                andere inhoudelijke zaken.
-              </Label>
-            </FormGroup>
-            <Button className="button" onClick={this.handleSubmit}>Versturen</Button>
-            <br/>
-          </FormGroup>
-        </Col>
 
         <Jumbotron className="footer" fluid>
           <Col
@@ -421,13 +419,12 @@ export default class App extends Component {
                 <option>Enterprise Mobility</option>
                 <option>Digital Experience</option>
               </Input>
-              <Input type="text" id="fileDesc" placeholder="Bestand Omschrijving"/>
+              <Input type="textarea" id="fileDesc" placeholder="Bestand Omschrijving"/>
               <br/>
               <Button className="button" onClick={this.handleUpload}>Versturen</Button>
             </Col>
           : <div/>
 }
-
       </div>
     );
   }
