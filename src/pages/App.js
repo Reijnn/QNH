@@ -310,7 +310,8 @@ export default class App extends Component {
             }
           }
         }}
-          showPagination={false}
+          showPagination={true}
+          defaultPageSize ="10"
           data={this.state.items}
           columns={[
           {
