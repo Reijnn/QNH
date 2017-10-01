@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-import firebase, {auth, provider} from '../js/firebase.js';
-import logo from '../images/QNH_logo_totaal_blauw transparant.png';
+import firebase, {auth, provider, storage, database} from '../js/firebase.js';
+import logo from '../images/QNH_logo.png';
 import ReactTable from 'react-table'
 import '../pages/app.css'
 import 'react-table/react-table.css'
@@ -25,9 +25,6 @@ import {
   Col,
   Container
 } from 'reactstrap';
-
-const storage = firebase.storage();
-const database = firebase.database();
 
 export default class App extends Component {
 
@@ -135,10 +132,11 @@ export default class App extends Component {
         clientName: this.state.clientName,
         clientCompany: this.state.clientCompany,
         clientEmail: this.state.clientEmail,
-        clientContact: this.state.clientContact
+        clientContact: this.state.clientContact,
+        clientPapers: this.state.selected
       }
       clientsRef.push(item);
-      this.setState({clientName: '', clientEmail: '', clientCompany: '', clientContact: ''});
+      this.setState({clientName: '', clientEmail: '', clientCompany: '', clientContact: '', selected: []});
       document
         .getElementById("alertSucces")
         .removeAttribute("hidden")
@@ -169,10 +167,16 @@ export default class App extends Component {
     });
   }
 
-  toggleRow(url) {
-    const newSelected = Object.assign({}, this.state.selected);
-    newSelected[url] = !this.state.selected[url];
-    this.setState({selected: newSelected});
+  toggleRow(paper) {
+    var files = this.state.selected;
+    var found = files.some(function (el) {
+      return el === paper;
+    });
+    if (!found) {
+      files.push(paper)
+    } else {
+      files.splice(paper, 1)
+    }
   }
 
   handleUpload(e) {
@@ -189,9 +193,7 @@ export default class App extends Component {
           var fileRef = database.ref('files');
 
           const item = {
-            fileName: document
-              .getElementById("fileName")
-              .value,
+            fileName: file.name,
             fileTheme: document
               .getElementById("fileTheme")
               .value,
@@ -242,8 +244,13 @@ export default class App extends Component {
             pull: 2,
             offset: 1
           }}>
-          <img src={logo}  width="250" onClick={() => window.open("https://www.qnh.eu/")} className="App-logo" alt="logo"/>
-          <br/><br/>
+            <img
+              src={logo}
+              width="250"
+              onClick={() => window.open("https://www.qnh.eu/")}
+              className="App-logo"
+              alt="logo"/>
+            <br/><br/>
             <p className="lead">QNH helpt organisaties met het bijsturen en verbeteren van
               hun bedrijfsvoering, door de inzet van slimme IT oplossingen. Dit doen we
               middels de thema’s{' '}
@@ -267,13 +274,13 @@ export default class App extends Component {
                 Collaboration</a>,{' '}
               <a
                 target="_blank"
-                className ="link"
+                className="link"
                 rel="noopener"
                 href={`https://qnh.eu/thema/enterprise-mobility/`}>
                 Enterprise Mobility</a>,{' '}
               <a
                 target="_blank"
-                className ="link"
+                className="link"
                 rel="noopener"
                 href={`https://qnh.eu/thema/digital-experience/`}>
                 Digital Experience</a>.</p>
@@ -301,7 +308,6 @@ export default class App extends Component {
         <ReactTable
           getTdProps={(state, rowInfo, column, instance) => {
           return {
- 
             onClick: (e, handleOriginal) => {
               if (column.id !== "checkbox" && rowInfo !== undefined) {
                 this.setState({file: rowInfo.original});
@@ -311,7 +317,7 @@ export default class App extends Component {
           }
         }}
           showPagination={true}
-          defaultPageSize ="10"
+          defaultPageSize="10"
           data={this.state.items}
           columns={[
           {
@@ -322,7 +328,7 @@ export default class App extends Component {
               return (<input
                 type="checkbox"
                 className="checkbox"
-                onChange={() => this.toggleRow(original.fileUrl)}/>);
+                onChange={() => this.toggleRow(original)}/>);
             }
           }, {
             Header: 'Naam',
@@ -412,7 +418,6 @@ export default class App extends Component {
               offset: 1
             }}>
               <br/><Input type="file" id="fileUpload" placeholder="Bestands selecteren"/>
-              <Input type="text" id="fileName" placeholder="Bestand Naam"/>
               <Input type="select" id="fileTheme" placeholder="Bestand Thema">
                 <option>Business Analytics</option>
                 <option>Cloud</option>
