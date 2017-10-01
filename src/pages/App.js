@@ -161,7 +161,7 @@ export default class App extends Component {
       let files = snapshot.val();
       let newState = [];
       for (let file in files) {
-        newState.push({fileId: file, fileName: files[file].fileName, fileDesc: files[file].fileDesc, fileTheme: files[file].fileTheme, fileUrl: files[file].fileUrl});
+        newState.push({fileId: file, fileName: files[file].fileName.replace(/\.[^.$]+$/, ''), fileDesc: files[file].fileDesc, fileTheme: files[file].fileTheme, fileUrl: files[file].fileUrl});
       }
       this.setState({items: newState});
     });
@@ -296,7 +296,7 @@ export default class App extends Component {
           isOpen={this.state.modal}
           toggle={this.toggle}
           className={this.props.className}>
-          <ModalHeader toggle={this.toggleModal}>{this.state.file.fileName}</ModalHeader>
+          <ModalHeader toggle={this.toggleModal}>{this.state.file.fileName.replace(/\.[^.$]+$/, '')}</ModalHeader>
           <ModalBody>
             {this.state.file.fileDesc}
           </ModalBody>
