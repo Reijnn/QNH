@@ -44,11 +44,19 @@ export default class App extends Component {
         fileUrl: ''
       },
       modal: false,
-      user: null
+      user: null,
+      export: [],
+      exportField: ""
     }
 
     this.toggle = this
       .toggle
+      .bind(this);
+    this.export = this
+      .export
+      .bind(this);
+    this.showExport = this
+      .showExport
       .bind(this);
     this.handleChange = this
       .handleChange
@@ -161,10 +169,51 @@ export default class App extends Component {
       let files = snapshot.val();
       let newState = [];
       for (let file in files) {
-        newState.push({fileId: file, fileName: files[file].fileName.replace(/\.[^.$]+$/, ''), fileDesc: files[file].fileDesc, fileTheme: files[file].fileTheme, fileUrl: files[file].fileUrl});
+        newState.push({
+          fileId: file,
+          fileName: files[file]
+            .fileName
+            .replace(/\.[^.$]+$/, ''),
+          fileDesc: files[file].fileDesc,
+          fileTheme: files[file].fileTheme,
+          fileUrl: files[file].fileUrl
+        });
       }
       this.setState({items: newState});
     });
+  }
+
+  export() {
+    const clientsRef = firebase
+      .database()
+      .ref('clients');
+    clientsRef.on('value', (snapshot) => {
+      let files = snapshot.val();
+      let newState = [];
+      for (let file in files) {
+        newState.push({Naam: files[file].clientName, Company: files[file].clientCompany, Contact: files[file].clientContact, Email: files[file].clientEmail, Papers: files[file].clientPapers});
+      }
+      this.setState({export: newState});
+    });
+  
+  }
+
+  showExport() {
+    var exportField = "Naam, Bedrijf, Contact, Email, Gedownload"
+    this
+      .state
+      .export
+      .forEach(function (element) {
+        var papernames = ""
+        element
+          .Papers
+          .forEach(function (element) {
+            papernames += element.fileName + " | " + element.fileTheme + " - "
+          }, this);
+        exportField += "\r\n" + element.Naam + ", " + element.Company + ", " + element.Contact + ", " + element.Email + ", " + papernames
+      }, this);
+    this.setState({exportField: exportField});
+    console.log(this.state.exportField)
   }
 
   toggleRow(paper) {
@@ -296,7 +345,11 @@ export default class App extends Component {
           isOpen={this.state.modal}
           toggle={this.toggle}
           className={this.props.className}>
-          <ModalHeader toggle={this.toggleModal}>{this.state.file.fileName.replace(/\.[^.$]+$/, '')}</ModalHeader>
+          <ModalHeader toggle={this.toggleModal}>{this
+              .state
+              .file
+              .fileName
+              .replace(/\.[^.$]+$/, '')}</ModalHeader>
           <ModalBody>
             {this.state.file.fileDesc}
           </ModalBody>
@@ -428,6 +481,8 @@ export default class App extends Component {
               <Input type="textarea" id="fileDesc" placeholder="Bestand Omschrijving"/>
               <br/>
               <Button className="button" onClick={this.handleUpload}>Versturen</Button>
+              <Button className="button" onClick={this.export}>Export</Button>
+              <Button className="button" onClick={this.showExport}>Show</Button>
             </Col>
           : <div/>
 }

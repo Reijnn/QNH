@@ -34,7 +34,20 @@ function sendEmail(email, displayName, attachments) {
   };
 
   mailOptions.subject = `Welcome to ${APP_NAME}!`;
-  mailOptions.text = `Hey ${displayName || ''}! Welcome to ${APP_NAME}. I hope you will enjoy our service.`;
+  mailOptions.html = `Beste ${displayName || ''}, <br/><br/>
+
+Bedankt voor uw interesse in QNH. Bijgaand vindt u de opgevraagde documenten. <br/>
+Mocht u naar aanleiding hiervan vragen hebben, schroom dan niet <a href="https://www.qnh.eu/contact">contact</a> met ons op te nemen! <br/><br/>
+  
+Met vriendelijke groet, <br/><br/>
+
+<strong>QNH Consulting BV</strong><br/>
+Hogehilweg 24<br/>
+1101 CD Amsterdam<br/>
+T:  +31 (0)20 46 09 609<br/>
+M: +31 (0)65 4214 678<br/>
+<a color="#CC3399" href="https://www.qnh.eu">www.qnh.eu</a>`;
+
   mailOptions.attachments = attachments
   return mailTransport.sendMail(mailOptions).then(() => {
     console.log('Email sent to:', email);
