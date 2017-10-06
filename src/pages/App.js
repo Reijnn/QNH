@@ -471,13 +471,7 @@ export default class App extends Component {
               offset: 1
             }}>
               <br/><Input type="file" id="fileUpload" placeholder="Bestands selecteren"/>
-              <Input type="select" id="fileTheme" placeholder="Bestand Thema">
-                <option>Business Analytics</option>
-                <option>Cloud</option>
-                <option>Collaboration</option>
-                <option>Enterprise Mobility</option>
-                <option>Digital Experience</option>
-              </Input>
+              <Input type="text" id="fileTheme" placeholder="Bestand Thema"/>
               <Input type="textarea" id="fileDesc" placeholder="Bestand Omschrijving"/>
               <br/>
               <Button className="button" onClick={this.handleUpload}>Versturen</Button>
